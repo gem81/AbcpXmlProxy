@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using System.Xml.Xsl;
+using System.Net.Mail;
 
 namespace AbcpXmlProxy
 {
@@ -33,7 +34,8 @@ namespace AbcpXmlProxy
         {
             if (context.Request.Path.StartsWithSegments("/abcp", StringComparison.Ordinal, out  _, out var abcppath))
             {
-                var ret = await GetJsonFromAbcp("http://avanti-motors.ru.public.api.abcp.ru" + abcppath, context.Request);
+                string host = new MailAddress(context.Request.Query["userlogin"]).Host;
+                var ret = await GetJsonFromAbcp($"http://{host}.public.api.abcp.ru" + abcppath, context.Request);
                 if (ret[0] == '[') ret = "{row :" + ret + "}";
                 var xml = JsonConvert.DeserializeXNode(ret, "root");
                 var bt = Encoding.UTF8.GetBytes(@"<?xml version=""1.0"" encoding=""UTF-8"" ?>" + Environment.NewLine + xml.ToString());
