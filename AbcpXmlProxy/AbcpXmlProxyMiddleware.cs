@@ -1,15 +1,11 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Xml.Linq;
-using System.Xml;
 using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using System.IO;
 using System.Xml.Xsl;
 using System.Net.Mail;
 
@@ -37,7 +33,7 @@ namespace AbcpXmlProxy
             {
                 string host = new MailAddress(context.Request.Query["userlogin"]).Host;
                 var ret = await GetJsonFromAbcp($"https://{host}.public.api.abcp.ru" + abcppath, context.Request);
-                if (ret[0] == '[') ret = "{row :" + ret + "}";
+                if (ret[0] == '[') ret = "{ \"row\" :" + ret.Replace("\\u0000","") + "}";
                 var xml = JsonConvert.DeserializeXNode(ret, "root");
                 var bt = Encoding.UTF8.GetBytes(@"<?xml version=""1.0"" encoding=""UTF-8""?>" + Environment.NewLine + xml.ToString());
                 context.Response.StatusCode = 200;
